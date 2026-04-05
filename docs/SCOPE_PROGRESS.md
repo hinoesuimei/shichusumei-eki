@@ -6,7 +6,7 @@
 - [x] Phase 2: Git管理（Agent 2）
 - Phase 3: フロントエンド基盤 — スキップ（HTMLシングルファイル）
 - [x] Phase 4: HTML実装（Agent 4）
-- [ ] Phase 5: 環境構築（Agent 5）— GitHub Pages設定
+- [x] Phase 5: 環境構築（Agent 5）— GitHub Pages設定
 - Phase 6: バックエンド計画 — スキップ（バックエンドなし）
 - Phase 7: バックエンド実装 — スキップ（バックエンドなし）
 - Phase 8: API統合 — スキップ（外部APIなし）
