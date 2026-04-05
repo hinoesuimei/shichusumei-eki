@@ -286,7 +286,7 @@
   <button class="btn-top" id="btn-top-result">← TOPに戻る</button>
   <div class="result-header">
     <img src="chara1.png" alt="太陽キャラクター" style="width:60px;height:60px;object-fit:contain;margin-bottom:4px;">
-    <p>本日のおみくじ</p>
+    <p>ひのえからのメッセージ</p>
   </div>
   <div class="pair-card">
     <div class="pair-side">
@@ -319,9 +319,11 @@
 const KAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 const KAN_TYPE = ['まっすぐ成長型','柔軟調整型','発信・太陽型','繊細表現型','安定・守り型',
                   '育成サポート型','決断・突破型','洗練・美意識型','流れ・柔軟型','感受・浸透型'];
-const KAN_ICON = ['🌳','🌸','☀️','🕯️','🏔️','🌾','⚔️','💎','🌊','🌧️'];
+const KAN_READ = ['きのえ','きのと','ひのえ','ひのと','つちのえ','つちのと','かのえ','かのと','みずのえ','みずのと'];
+const KAN_ICON = ['🌳','🌸','☀️','🕯️','🏔️','🌾','⚔️','💎','🌊','💧'];
 const KAN_DESC = ['大木','草花','太陽','ろうそく','大山','田畑','刀','宝石','大海','霧雨'];
 const HAKKE = ['乾','坤','震','巽','坎','離','艮','兌'];
+const HAKKE_READ = ['けん','こん','しん','そん','かん','り','ごん','だ'];
 const HAKKE_NAME = ['行動・リーダー','受容・育成','スタート・変化','広がり・柔軟',
                     '慎重・内省','表現・発信','停止・安定','喜び・交流'];
 const HAKKE_ICON = ['⚡','🌏','⛈️','🌀','💧','🔥','🗻','😊'];
@@ -445,58 +447,71 @@ function getCtx() {
   return audioCtx;
 }
 
-// じゃらん音：金属製の鈴/筮竹が触れ合う音
+// 筮竹をまわす音：竹筒の中で棒が回転する「シャー＋コン」
 function playShuffle() {
   const ctx = getCtx();
+  const now = ctx.currentTime;
+  const dur = 3.2;
   const sr = ctx.sampleRate;
 
-  function playJaran(startTime) {
-    // 筮竹が当たる「コツン」成分
-    const hitBuf = ctx.createBuffer(1, Math.floor(sr * 0.06), sr);
-    const hitD = hitBuf.getChannelData(0);
-    for (let i = 0; i < hitD.length; i++) {
-      hitD[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.006));
+  // ── 回転の「シャー」：バンドパスノイズ + 回転LFO ──
+  const nLen = Math.floor(sr * dur);
+  const nBuf = ctx.createBuffer(1, nLen, sr);
+  const nData = nBuf.getChannelData(0);
+  for (let i = 0; i < nLen; i++) nData[i] = Math.random() * 2 - 1;
+
+  const nSrc = ctx.createBufferSource();
+  nSrc.buffer = nBuf;
+
+  const bp1 = ctx.createBiquadFilter();
+  bp1.type = 'bandpass'; bp1.frequency.value = 850; bp1.Q.value = 2.5;
+  const bp2 = ctx.createBiquadFilter();
+  bp2.type = 'bandpass'; bp2.frequency.value = 1500; bp2.Q.value = 3;
+
+  const nGain = ctx.createGain();
+  nGain.gain.setValueAtTime(0, now);
+  nGain.gain.linearRampToValueAtTime(0.13, now + 0.3);
+  nGain.gain.setValueAtTime(0.13, now + dur - 0.6);
+  nGain.gain.linearRampToValueAtTime(0, now + dur);
+
+  nSrc.connect(bp1); bp1.connect(bp2); bp2.connect(nGain); nGain.connect(ctx.destination);
+  nSrc.start(now); nSrc.stop(now + dur);
+
+  // 回転リズムLFO（約3回転/秒）
+  const lfo = ctx.createOscillator();
+  const lfoG = ctx.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = 3.2;
+  lfoG.gain.value = 0.055;
+  lfo.connect(lfoG); lfoG.connect(nGain.gain);
+  lfo.start(now); lfo.stop(now + dur);
+
+  // ── 棒が筒壁に当たる「コン」音 ──
+  function stickHit(t) {
+    const buf = ctx.createBuffer(1, Math.floor(sr * 0.09), sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.011));
     }
-    const hitSrc = ctx.createBufferSource();
-    hitSrc.buffer = hitBuf;
-
-    // 金属的な鈴の倍音（じゃらん成分）
-    const freqs = [1200, 1800, 2400, 3100];
-    const oscs = freqs.map(f => {
-      const o = ctx.createOscillator();
-      o.type = 'sine';
-      o.frequency.value = f + (Math.random() - 0.5) * 80;
-      return o;
-    });
-
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0, startTime);
-    masterGain.gain.linearRampToValueAtTime(0.18, startTime + 0.002);
-    masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.28);
-
-    const hitGain = ctx.createGain();
-    hitGain.gain.value = 0.22;
-    hitSrc.connect(hitGain);
-    hitGain.connect(masterGain);
-
-    oscs.forEach(o => {
-      const g = ctx.createGain();
-      g.gain.value = 0.055;
-      o.connect(g);
-      g.connect(masterGain);
-      o.start(startTime);
-      o.stop(startTime + 0.3);
-    });
-    hitSrc.connect(masterGain);
-    masterGain.connect(ctx.destination);
-    hitSrc.start(startTime);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = 550 + Math.random() * 350; bp.Q.value = 7;
+    const g = ctx.createGain(); g.gain.value = 0.22 + Math.random() * 0.1;
+    src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+    src.start(t);
+    // 同じ回転でダブル打ち（棒同士が交互に当たる）
+    if (Math.random() > 0.45) {
+      const src2 = ctx.createBufferSource(); src2.buffer = buf;
+      const g2 = ctx.createGain(); g2.gain.value = 0.12 + Math.random() * 0.06;
+      src2.connect(bp); bp.connect(g2); g2.connect(ctx.destination);
+      src2.start(t + 0.07 + Math.random() * 0.04);
+    }
   }
 
-  // 12〜14回じゃらんを鳴らす（ランダム間隔）
-  let t = ctx.currentTime;
-  for (let i = 0; i < 13; i++) {
-    playJaran(t);
-    t += 0.18 + Math.random() * 0.08;
+  // 回転周期（約0.31秒）でヒット
+  let t = now + 0.18;
+  while (t < now + dur - 0.25) {
+    stickHit(t);
+    t += 0.29 + Math.random() * 0.08;
   }
 }
 
@@ -573,7 +588,7 @@ let currentKanIdx = 0;
 function goCast(y, m, d) {
   currentKanIdx = KAN.indexOf(calcNicchuu(y, m, d));
   const k = currentKanIdx;
-  document.getElementById('cast-kan-label').textContent = `あなたは ${KAN[k]}（${KAN_TYPE[k]}）`;
+  document.getElementById('cast-kan-label').textContent = `あなたは ${KAN[k]}（${KAN_READ[k]}）${KAN_TYPE[k]}`;
   showScreen('screen-cast');
 }
 
@@ -581,11 +596,11 @@ function showResult() {
   const k = currentKanIdx;
   const h = Math.floor(Math.random() * 8);
   document.getElementById('res-kan-icon').textContent = KAN_ICON[k];
-  document.getElementById('res-kan-name').textContent = `${KAN[k]}（${KAN_TYPE[k]}）`;
-  document.getElementById('res-kan-type').textContent = KAN_DESC[k];
+  document.getElementById('res-kan-name').textContent = `${KAN[k]}（${KAN_READ[k]}）`;
+  document.getElementById('res-kan-type').textContent = `${KAN_TYPE[k]}　${KAN_DESC[k]}`;
   document.getElementById('res-hak-icon').textContent = HAKKE_ICON[h];
-  document.getElementById('res-hak-name').textContent = `${HAKKE[h]}（${HAKKE_NAME[h]}）`;
-  document.getElementById('res-hak-type').textContent = HAKKE_DESC[h];
+  document.getElementById('res-hak-name').textContent = `${HAKKE[h]}（${HAKKE_READ[h]}）`;
+  document.getElementById('res-hak-type').textContent = HAKKE_NAME[h];
   document.getElementById('res-message').textContent = MSG[k][h];
   showScreen('screen-result');
 }
