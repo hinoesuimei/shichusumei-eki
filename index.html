@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>八卦おみくじ</title>
+  <title>ひのえの四柱推命×易占い</title>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -30,20 +30,52 @@
       width: 100%;
       max-width: 480px;
       min-height: 100vh;
-      padding: 32px 20px 48px;
+      padding: 24px 20px 48px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    .logo { font-size: 2.4rem; margin-bottom: 6px; }
-    h1 {
-      font-size: 1.8rem;
+
+    /* ── ヘッダー共通 ── */
+    .site-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .chara-img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      margin-bottom: 4px;
+    }
+    .site-title {
+      font-size: 1.25rem;
       font-weight: 800;
       color: var(--dark-orange);
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+      line-height: 1.4;
     }
-    .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 28px; }
+    .site-subtitle { color: var(--muted); font-size: 0.82rem; margin-top: 4px; }
+
+    /* ── TOPに戻る ── */
+    .btn-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+    .btn-top:hover { border-color: var(--gold); color: var(--dark-orange); }
+
+    /* ── カード類 ── */
     .card {
       background: white;
       border: 1px solid var(--border);
@@ -97,7 +129,8 @@
     .btn-sub:hover { border-color: var(--gold); }
 
     /* ── Screen 2: Cast ── */
-    #screen-cast { justify-content: center; gap: 10px; text-align: center; }
+    #screen-cast { justify-content: flex-start; text-align: center; }
+    .cast-header { text-align: center; margin-bottom: 10px; }
     .kan-badge {
       background: var(--light-gold);
       color: var(--dark-orange);
@@ -105,6 +138,7 @@
       padding: 8px 22px;
       font-weight: 700;
       font-size: 1rem;
+      margin-bottom: 8px;
     }
     .cast-hint { color: var(--muted); font-size: 0.88rem; }
     #sticks {
@@ -112,7 +146,7 @@
       gap: 7px;
       align-items: flex-end;
       justify-content: center;
-      height: 150px;
+      height: 140px;
       margin: 8px 0;
     }
     .stick {
@@ -143,14 +177,14 @@
       to   { transform: rotate(14deg) translateY(6px); }
     }
     #btn-cast {
-      width: 190px;
-      height: 190px;
+      width: 180px;
+      height: 180px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 100%);
       color: white;
       border: none;
       font-family: inherit;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 4px 22px rgba(200,151,42,0.45);
@@ -161,7 +195,7 @@
     #btn-cast:active { transform: scale(0.96); box-shadow: 0 2px 10px rgba(200,151,42,0.3); }
 
     /* ── Screen 3: Result ── */
-    .result-header { text-align: center; margin-bottom: 16px; }
+    .result-header { text-align: center; margin-bottom: 12px; }
     .result-header p { color: var(--muted); font-size: 0.82rem; }
     .pair-card {
       background: white;
@@ -177,7 +211,7 @@
     .pair-side { flex: 1; text-align: center; }
     .pair-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
     .pair-icon { font-size: 2.2rem; margin-bottom: 4px; line-height: 1; }
-    .pair-name { font-size: 1.1rem; font-weight: 800; color: var(--dark-orange); }
+    .pair-name { font-size: 1.05rem; font-weight: 800; color: var(--dark-orange); }
     .pair-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
     .pair-x { color: var(--gold); font-size: 1.4rem; font-weight: 700; flex-shrink: 0; }
     .message-box {
@@ -212,10 +246,10 @@
 
 <!-- Screen 1: 生年月日入力 -->
 <div id="screen-input" class="screen">
-  <div style="text-align:center; margin-top:24px; margin-bottom:28px;">
-    <div class="logo">易</div>
-    <h1>八卦おみくじ</h1>
-    <p class="subtitle">生年月日から今日の流れを読み解く</p>
+  <div class="site-header" style="margin-top: 20px;">
+    <img src="chara1.png" alt="太陽キャラクター" class="chara-img">
+    <div class="site-title">ひのえの<br>四柱推命×易占い</div>
+    <p class="site-subtitle">生年月日から今日の流れを読み解く</p>
   </div>
   <div class="card">
     <p class="label">生年月日を入力してください</p>
@@ -230,9 +264,10 @@
 
 <!-- Screen 2: 念じてクリック -->
 <div id="screen-cast" class="screen" hidden>
-  <div style="text-align:center; margin-top:24px; margin-bottom:10px;">
-    <div class="logo">易</div>
-    <h1>八卦おみくじ</h1>
+  <button class="btn-top" id="btn-top-cast">← TOPに戻る</button>
+  <div class="cast-header">
+    <img src="chara1.png" alt="太陽キャラクター" class="chara-img">
+    <div class="site-title">四柱推命×易占い</div>
   </div>
   <div class="kan-badge" id="cast-kan-label"></div>
   <p class="cast-hint">目を閉じて、今日の自分を思い浮かべてください</p>
@@ -248,8 +283,9 @@
 
 <!-- Screen 3: 結果 -->
 <div id="screen-result" class="screen" hidden>
-  <div class="result-header" style="margin-top:20px;">
-    <div style="font-size:1.6rem; margin-bottom:4px;">易</div>
+  <button class="btn-top" id="btn-top-result">← TOPに戻る</button>
+  <div class="result-header">
+    <img src="chara1.png" alt="太陽キャラクター" style="width:60px;height:60px;object-fit:contain;margin-bottom:4px;">
     <p>本日のおみくじ</p>
   </div>
   <div class="pair-card">
@@ -408,34 +444,101 @@ function getCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
 }
-function playClick(ctx, t) {
-  const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.04), ctx.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / 180);
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  const gain = ctx.createGain();
-  gain.gain.value = 0.28;
-  src.connect(gain);
-  gain.connect(ctx.destination);
-  src.start(t);
-}
+
+// じゃらん音：金属製の鈴/筮竹が触れ合う音
 function playShuffle() {
   const ctx = getCtx();
-  for (let i = 0; i < 14; i++) playClick(ctx, ctx.currentTime + i * 0.22);
+  const sr = ctx.sampleRate;
+
+  function playJaran(startTime) {
+    // 筮竹が当たる「コツン」成分
+    const hitBuf = ctx.createBuffer(1, Math.floor(sr * 0.06), sr);
+    const hitD = hitBuf.getChannelData(0);
+    for (let i = 0; i < hitD.length; i++) {
+      hitD[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.006));
+    }
+    const hitSrc = ctx.createBufferSource();
+    hitSrc.buffer = hitBuf;
+
+    // 金属的な鈴の倍音（じゃらん成分）
+    const freqs = [1200, 1800, 2400, 3100];
+    const oscs = freqs.map(f => {
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f + (Math.random() - 0.5) * 80;
+      return o;
+    });
+
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(0, startTime);
+    masterGain.gain.linearRampToValueAtTime(0.18, startTime + 0.002);
+    masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.28);
+
+    const hitGain = ctx.createGain();
+    hitGain.gain.value = 0.22;
+    hitSrc.connect(hitGain);
+    hitGain.connect(masterGain);
+
+    oscs.forEach(o => {
+      const g = ctx.createGain();
+      g.gain.value = 0.055;
+      o.connect(g);
+      g.connect(masterGain);
+      o.start(startTime);
+      o.stop(startTime + 0.3);
+    });
+    hitSrc.connect(masterGain);
+    masterGain.connect(ctx.destination);
+    hitSrc.start(startTime);
+  }
+
+  // 12〜14回じゃらんを鳴らす（ランダム間隔）
+  let t = ctx.currentTime;
+  for (let i = 0; i < 13; i++) {
+    playJaran(t);
+    t += 0.18 + Math.random() * 0.08;
+  }
 }
+
+// 結果音：チベタンボウル/銅鑼風の余韻ある鐘
 function playDing() {
   const ctx = getCtx();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.value = 880;
-  gain.gain.setValueAtTime(0.45, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.8);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start();
-  osc.stop(ctx.currentTime + 2.8);
+  const now = ctx.currentTime;
+
+  // 基音 + 倍音（倍音比はボウル特有の非整数）
+  const partials = [
+    { freq: 528, gain: 0.38, decay: 4.5 },
+    { freq: 880, gain: 0.18, decay: 3.2 },
+    { freq: 1320, gain: 0.10, decay: 2.4 },
+    { freq: 1848, gain: 0.06, decay: 1.8 },
+    { freq: 2200, gain: 0.04, decay: 1.2 },
+  ];
+
+  // 打音（アタック）
+  const clickBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.025), ctx.sampleRate);
+  const cd = clickBuf.getChannelData(0);
+  for (let i = 0; i < cd.length; i++) cd[i] = (Math.random() * 2 - 1) * Math.exp(-i / 60);
+  const clickSrc = ctx.createBufferSource();
+  clickSrc.buffer = clickBuf;
+  const clickGain = ctx.createGain();
+  clickGain.gain.value = 0.15;
+  clickSrc.connect(clickGain);
+  clickGain.connect(ctx.destination);
+  clickSrc.start(now);
+
+  // 倍音列
+  partials.forEach(({ freq, gain, decay }) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(gain, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + decay);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + decay + 0.1);
+  });
 }
 
 // ── 画面遷移 ──────────────────────────────────────────────────────────────
@@ -470,8 +573,7 @@ let currentKanIdx = 0;
 function goCast(y, m, d) {
   currentKanIdx = KAN.indexOf(calcNicchuu(y, m, d));
   const k = currentKanIdx;
-  document.getElementById('cast-kan-label').textContent =
-    `あなたは ${KAN[k]}（${KAN_TYPE[k]}）`;
+  document.getElementById('cast-kan-label').textContent = `あなたは ${KAN[k]}（${KAN_TYPE[k]}）`;
   showScreen('screen-cast');
 }
 
@@ -529,6 +631,8 @@ function init() {
     localStorage.removeItem(LS_KEY);
     showScreen('screen-input');
   });
+  document.getElementById('btn-top-cast').addEventListener('click', () => showScreen('screen-input'));
+  document.getElementById('btn-top-result').addEventListener('click', () => showScreen('screen-input'));
 }
 
 document.addEventListener('DOMContentLoaded', init);
