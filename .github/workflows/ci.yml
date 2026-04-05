@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'feature/**']
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  html-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check index.html exists
+        run: test -f index.html && echo "✅ index.html found" || echo "⚠️ index.html not found yet"

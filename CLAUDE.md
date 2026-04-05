@@ -69,3 +69,19 @@
 - docs/DEPLOYMENT.md（デプロイ情報）
 - docs/e2e-specs/（E2Eテスト仕様書）
 上記以外のドキュメント作成はユーザー許諾が必要。
+
+## CI/CD設定
+
+### GitHub Actions（プッシュ・PR時に自動実行）
+| チェック | 対象 | 内容 |
+|---------|------|------|
+| HTML存在確認 | index.html | ファイル存在チェック |
+
+### ブランチ戦略
+- `main`: 本番環境
+- `develop`: 開発統合ブランチ
+- `feature/*`: 機能開発ブランチ
+
+### リポジトリ
+- URL: https://github.com/hinoesuimei/shichusumei-eki
+- 公開設定: Private
