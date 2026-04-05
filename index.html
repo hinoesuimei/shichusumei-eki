@@ -46,6 +46,12 @@
       height: 90px;
       object-fit: contain;
       margin-bottom: 4px;
+      filter: drop-shadow(0 4px 12px rgba(232,115,42,0.22));
+      animation: floatSun 4s ease-in-out infinite;
+    }
+    @keyframes floatSun {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
     }
     .site-title {
       font-size: 1.25rem;
@@ -285,7 +291,7 @@
 <div id="screen-result" class="screen" hidden>
   <button class="btn-top" id="btn-top-result">← TOPに戻る</button>
   <div class="result-header">
-    <img src="chara1.png" alt="太陽キャラクター" style="width:60px;height:60px;object-fit:contain;margin-bottom:4px;">
+    <img src="chara1.png" alt="太陽キャラクター" class="chara-img" style="width:60px;height:60px;">
     <p>ひのえからのメッセージ</p>
   </div>
   <div class="pair-card">
@@ -454,64 +460,58 @@ function playShuffle() {
   const dur = 3.2;
   const sr = ctx.sampleRate;
 
-  // ── 回転の「シャー」：バンドパスノイズ + 回転LFO ──
-  const nLen = Math.floor(sr * dur);
-  const nBuf = ctx.createBuffer(1, nLen, sr);
-  const nData = nBuf.getChannelData(0);
-  for (let i = 0; i < nLen; i++) nData[i] = Math.random() * 2 - 1;
-
-  const nSrc = ctx.createBufferSource();
-  nSrc.buffer = nBuf;
-
-  const bp1 = ctx.createBiquadFilter();
-  bp1.type = 'bandpass'; bp1.frequency.value = 850; bp1.Q.value = 2.5;
-  const bp2 = ctx.createBiquadFilter();
-  bp2.type = 'bandpass'; bp2.frequency.value = 1500; bp2.Q.value = 3;
-
+  // ── レイヤーB: 摩擦ノイズ（サラサラした連続層）──
+  const nBuf = ctx.createBuffer(1, Math.floor(sr * dur), sr);
+  const nd = nBuf.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  const nSrc = ctx.createBufferSource(); nSrc.buffer = nBuf;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3200; hp.Q.value = 0.6;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 8500;
   const nGain = ctx.createGain();
   nGain.gain.setValueAtTime(0, now);
-  nGain.gain.linearRampToValueAtTime(0.13, now + 0.3);
-  nGain.gain.setValueAtTime(0.13, now + dur - 0.6);
-  nGain.gain.linearRampToValueAtTime(0, now + dur);
-
-  nSrc.connect(bp1); bp1.connect(bp2); bp2.connect(nGain); nGain.connect(ctx.destination);
+  nGain.gain.linearRampToValueAtTime(0.18, now + 0.35);
+  nGain.gain.linearRampToValueAtTime(0.14, now + 1.2);
+  nGain.gain.linearRampToValueAtTime(0.20, now + 2.0);
+  nGain.gain.linearRampToValueAtTime(0.0, now + dur);
+  nSrc.connect(hp); hp.connect(lp); lp.connect(nGain); nGain.connect(ctx.destination);
   nSrc.start(now); nSrc.stop(now + dur);
 
-  // 回転リズムLFO（約3回転/秒）
-  const lfo = ctx.createOscillator();
-  const lfoG = ctx.createGain();
-  lfo.type = 'sine'; lfo.frequency.value = 3.2;
-  lfoG.gain.value = 0.055;
-  lfo.connect(lfoG); lfoG.connect(nGain.gain);
-  lfo.start(now); lfo.stop(now + dur);
-
-  // ── 棒が筒壁に当たる「コン」音 ──
-  function stickHit(t) {
-    const buf = ctx.createBuffer(1, Math.floor(sr * 0.09), sr);
+  // ── レイヤーE: 個々の棒がスライドする「シュッ」──
+  function slip(t, slipDur, vol, freq) {
+    const len = Math.floor(sr * slipDur);
+    const buf = ctx.createBuffer(1, len, sr);
     const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) {
-      d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.011));
+    for (let i = 0; i < len; i++) {
+      const env = Math.pow(Math.sin(Math.PI * i / len), 0.6); // 前半強め
+      d[i] = (Math.random() * 2 - 1) * env;
     }
     const src = ctx.createBufferSource(); src.buffer = buf;
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 550 + Math.random() * 350; bp.Q.value = 7;
-    const g = ctx.createGain(); g.gain.value = 0.22 + Math.random() * 0.1;
-    src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = 1.8;
+    const hp2 = ctx.createBiquadFilter(); hp2.type = 'highpass'; hp2.frequency.value = 1800;
+    const g = ctx.createGain(); g.gain.value = vol;
+    src.connect(bp); bp.connect(hp2); hp2.connect(g); g.connect(ctx.destination);
     src.start(t);
-    // 同じ回転でダブル打ち（棒同士が交互に当たる）
-    if (Math.random() > 0.45) {
-      const src2 = ctx.createBufferSource(); src2.buffer = buf;
-      const g2 = ctx.createGain(); g2.gain.value = 0.12 + Math.random() * 0.06;
-      src2.connect(bp); bp.connect(g2); g2.connect(ctx.destination);
-      src2.start(t + 0.07 + Math.random() * 0.04);
-    }
   }
 
-  // 回転周期（約0.31秒）でヒット
-  let t = now + 0.18;
-  while (t < now + dur - 0.25) {
-    stickHit(t);
-    t += 0.29 + Math.random() * 0.08;
+  // ── スライドのリズム生成（密度が波打つ）──
+  let t = now + 0.06;
+  while (t < now + dur - 0.12) {
+    const progress = (t - now) / dur; // 0→1
+    // 中盤（0.3〜0.7）で密度が上がる波形
+    const density = 0.5 + 0.5 * Math.sin(Math.PI * progress);
+    const interval = 0.055 + (1 - density) * 0.10 + Math.random() * 0.04;
+    const slipLen  = 0.07 + density * 0.06 + Math.random() * 0.04;
+    const vol      = (0.12 + density * 0.10) * (0.8 + Math.random() * 0.4);
+    const freq     = 2200 + Math.random() * 900;
+
+    slip(t, slipLen, vol, freq);
+
+    // 30%の確率で直後に別の棒がずれる（複数本同時感）
+    if (Math.random() < 0.30) {
+      slip(t + 0.018 + Math.random() * 0.025, slipLen * 0.7,
+           vol * 0.55, freq * (0.85 + Math.random() * 0.3));
+    }
+    t += interval;
   }
 }
 
