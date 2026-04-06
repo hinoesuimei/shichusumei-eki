@@ -245,6 +245,21 @@
       transition: color 0.15s;
     }
     .course-link:hover { color: var(--dark-orange); }
+    .line-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+    }
+    .line-modal-inner {
+      background: var(--cream); border-radius: 16px; padding: 28px 24px 20px;
+      text-align: center; max-width: 280px; width: 90%;
+    }
+    .line-modal-title { font-size: 1rem; font-weight: bold; color: var(--text); margin: 0 0 14px; }
+    .line-modal-qr { width: 180px; height: 180px; border-radius: 8px; }
+    .line-modal-note { font-size: 0.8rem; color: var(--muted); margin: 10px 0 16px; }
+    .line-modal-close {
+      background: var(--orange); color: #fff; border: none; border-radius: 8px;
+      padding: 8px 24px; font-size: 0.9rem; cursor: pointer;
+    }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -318,6 +333,16 @@
     <button class="btn-sub" id="btn-clear">クリア</button>
   </div>
   <a href="#" class="course-link" id="course-link">もっと深く知りたい方はこちら →</a>
+</div>
+
+<!-- LINE QRモーダル -->
+<div id="line-modal" class="line-modal" hidden>
+  <div class="line-modal-inner">
+    <p class="line-modal-title">LINEで友だち追加</p>
+    <img src="line-qr.png" alt="LINE QRコード" class="line-modal-qr">
+    <p class="line-modal-note">カメラでQRコードを読み取ってください</p>
+    <button class="line-modal-close" id="line-modal-close">閉じる</button>
+  </div>
 </div>
 
 <script>
@@ -640,6 +665,18 @@ function init() {
   });
   document.getElementById('btn-top-cast').addEventListener('click', () => showScreen('screen-input'));
   document.getElementById('btn-top-result').addEventListener('click', () => showScreen('screen-input'));
+
+  const modal = document.getElementById('line-modal');
+  document.getElementById('course-link').addEventListener('click', e => {
+    e.preventDefault();
+    modal.hidden = false;
+  });
+  document.getElementById('line-modal-close').addEventListener('click', () => {
+    modal.hidden = true;
+  });
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.hidden = true;
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
