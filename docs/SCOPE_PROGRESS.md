@@ -15,8 +15,8 @@
 | Phase 7 | バックエンド実装 | スキップ（バックエンドなし） |
 | Phase 8 | API統合 | スキップ（外部APIなし） |
 | Phase 9 | E2Eテスト（Agent 9） | [x] |
-| Phase 10 | ローカル動作確認（Agent 10） | [ ] |
-| Phase 11 | デプロイ（Agent 11） | [ ] |
+| Phase 10 | ローカル動作確認（Agent 10） | [x] |
+| Phase 11 | デプロイ（Agent 11） | [x] |
 
 ---
 
