@@ -256,6 +256,11 @@
     .line-modal-title { font-size: 1rem; font-weight: bold; color: var(--text); margin: 0 0 14px; }
     .line-modal-qr { width: 180px; height: 180px; border-radius: 8px; }
     .line-modal-note { font-size: 0.8rem; color: var(--muted); margin: 10px 0 16px; }
+    .line-add-btn {
+      display: inline-block; background: #06C755; color: #fff; border-radius: 8px;
+      padding: 12px 24px; font-size: 1rem; font-weight: bold; text-decoration: none;
+      margin-bottom: 12px;
+    }
     .line-modal-close {
       background: var(--orange); color: #fff; border: none; border-radius: 8px;
       padding: 8px 24px; font-size: 0.9rem; cursor: pointer;
@@ -339,8 +344,14 @@
 <div id="line-modal" class="line-modal" hidden>
   <div class="line-modal-inner">
     <p class="line-modal-title">LINEで友だち追加</p>
-    <img src="line-qr.png" alt="LINE QRコード" class="line-modal-qr">
-    <p class="line-modal-note">カメラでQRコードを読み取ってください</p>
+    <div id="line-modal-qr-block">
+      <img src="line-qr.png" alt="LINE QRコード" class="line-modal-qr">
+      <p class="line-modal-note">カメラでQRコードを読み取ってください</p>
+    </div>
+    <div id="line-modal-btn-block" hidden>
+      <a href="https://lin.ee/9pyWqAU" class="line-add-btn">LINEで友だち追加</a>
+      <p class="line-modal-note">タップするとLINEアプリが開きます</p>
+    </div>
     <button class="line-modal-close" id="line-modal-close">閉じる</button>
   </div>
 </div>
@@ -667,6 +678,11 @@ function init() {
   document.getElementById('btn-top-result').addEventListener('click', () => showScreen('screen-input'));
 
   const modal = document.getElementById('line-modal');
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    document.getElementById('line-modal-qr-block').hidden = true;
+    document.getElementById('line-modal-btn-block').hidden = false;
+  }
   document.getElementById('course-link').addEventListener('click', e => {
     e.preventDefault();
     modal.hidden = false;
