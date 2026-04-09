@@ -234,15 +234,33 @@
     .btn-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; }
     .btn-row .btn-main { background: var(--gold); }
     .btn-row .btn-main:hover { background: var(--dark-orange); }
+    .line-cta-block {
+      width: 100%;
+      background: linear-gradient(160deg, #fffef9, #fdf6e8);
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem 1rem;
+      text-align: center;
+      margin-top: 4px;
+    }
+    .line-cta-desc {
+      font-size: 0.82rem;
+      line-height: 1.9;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.7rem;
+    }
     .course-link {
-      display: block;
+      display: inline-block;
       text-align: center;
       color: var(--orange);
       font-size: 0.88rem;
+      font-weight: 700;
       text-decoration: none;
-      padding: 10px;
+      padding: 8px 16px;
       border-radius: 8px;
       transition: color 0.15s;
+      letter-spacing: 0.08em;
     }
     .course-link:hover { color: var(--dark-orange); }
     .line-modal {
@@ -337,22 +355,9 @@
     <button class="btn-main" id="btn-again">もう一度引く</button>
     <button class="btn-sub" id="btn-clear">クリア</button>
   </div>
-  <a href="#" class="course-link" id="course-link">もっと深く知りたい方はこちら →</a>
-</div>
-
-<!-- LINE QRモーダル -->
-<div id="line-modal" class="line-modal" hidden>
-  <div class="line-modal-inner">
-    <p class="line-modal-title">LINEで友だち追加</p>
-    <div id="line-modal-qr-block">
-      <img src="line-qr.png" alt="LINE QRコード" class="line-modal-qr">
-      <p class="line-modal-note">カメラでQRコードを読み取ってください</p>
-    </div>
-    <div id="line-modal-btn-block" hidden>
-      <a href="https://lin.ee/9pyWqAU" class="line-add-btn">LINEで友だち追加</a>
-      <p class="line-modal-note">タップするとLINEアプリが開きます</p>
-    </div>
-    <button class="line-modal-close" id="line-modal-close">閉じる</button>
+  <div class="line-cta-block">
+    <p class="line-cta-desc">日干特典PDF・四柱推命の豆知識など、<br>ひのえのLINEで受け取れます。</p>
+    <a href="https://lin.ee/tC8fwMH" class="course-link" id="course-link">ひのえのLINEはこちら →</a>
   </div>
 </div>
 
@@ -677,22 +682,6 @@ function init() {
   document.getElementById('btn-top-cast').addEventListener('click', () => showScreen('screen-input'));
   document.getElementById('btn-top-result').addEventListener('click', () => showScreen('screen-input'));
 
-  const modal = document.getElementById('line-modal');
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    document.getElementById('line-modal-qr-block').hidden = true;
-    document.getElementById('line-modal-btn-block').hidden = false;
-  }
-  document.getElementById('course-link').addEventListener('click', e => {
-    e.preventDefault();
-    modal.hidden = false;
-  });
-  document.getElementById('line-modal-close').addEventListener('click', () => {
-    modal.hidden = true;
-  });
-  modal.addEventListener('click', e => {
-    if (e.target === modal) modal.hidden = true;
-  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
